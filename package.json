@@ -1,0 +1,19 @@
+{
+  "name": "chatbot_ml",
+  "version": "1.0.0",
+  "description": "A production-ready AI chatbot application built with Next.js, Node.js (Express), OpenAI, and PostgreSQL.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "start": "concurrently \"npm run start --prefix server\" \"npm run start --prefix client\"",
+    "build": "npm run build --prefix client && npm run build --prefix server",
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

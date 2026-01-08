@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # AI bot
 
 
@@ -91,3 +92,56 @@ For open source projects, say how it is licensed.
 
 ## Project status
 If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+=======
+# Chatbot ML Project
+
+A production-ready AI chatbot application built with Next.js, Node.js (Express), OpenAI, and PostgreSQL.
+
+## Project Structure
+
+- **client/**: Next.js frontend application with Ant Design.
+- **server/**: Node.js Express backend with TypeScript.
+
+## Setup Instructions
+
+### 1. Environment Variables
+
+Navigate to the `server/` directory and open `.env`. Fill in your credentials:
+
+```bash
+PORT=5000
+OPENAI_API_KEY=sk-your-openai-api-key
+DATABASE_URL=postgres://user:password@localhost:5432/your_database
+```
+
+### 2. Database (Optional)
+
+Ensure you have PostgreSQL installed and running. Create a database (e.g., `chatbot`). The application will automatically create the necessary `messages` table on startup if `DATABASE_URL` is valid.
+
+### 3. Running the Application
+
+You can run both client and server in separate terminals.
+
+**Server**:
+```bash
+cd server
+npm install
+npm run dev
+```
+
+**Client**:
+```bash
+cd client
+npm install
+npm run dev
+```
+
+The frontend will be available at `http://localhost:3000`.
+
+## Architecture Highlights
+
+- **Frontend**: Next.js App Router for SEO and performance. Ant Design for a clean, professional UI.
+- **Backend**: Modular Express app with Controller-Service-Repository pattern (simplified to Controller-DB for this scope).
+- **Security**: Environment variables for sensitive keys. CORS enabled for frontend-backend communication.
+- **Database**: PostgreSQL for persistent chat history.
+>>>>>>> 3b9ff66 (Initial commit: AI Chatbot with Next.js frontend and Express backend)
