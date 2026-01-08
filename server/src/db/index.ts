@@ -24,6 +24,7 @@ export const initDb = async () => {
     );
   `;
 
+  // test
     try {
         await pool.query(createTableQuery);
         console.log("Database initialized successfully.");
