@@ -7,7 +7,14 @@
     "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
     "start": "concurrently \"npm run start --prefix server\" \"npm run start --prefix client\"",
     "build": "npm run build --prefix client && npm run build --prefix server",
-    "install:all": "npm install && npm install --prefix server && npm install --prefix client"
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:restart": "docker-compose down && docker-compose up -d",
+    "docker:clean": "docker-compose down -v --rmi all",
+    "docker:prod": "docker-compose build && docker-compose up -d"
   },
   "keywords": [],
   "author": "",

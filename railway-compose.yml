@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - 4000:4000
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: $DATABASE_URL
+      GEMINI_API_KEY: $GEMINI_API_KEY
+      FRONTEND_URL: $FRONTEND_URL
+    start_command: node dist/index.js
+    healthcheck:
+      path: /health
+      interval: 30s

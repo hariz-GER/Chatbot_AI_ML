@@ -1,147 +1,178 @@
-<<<<<<< HEAD
-# AI bot
+# Smart Assistant Chatbot 🤖
 
+A production-ready AI chatbot application built with Next.js, Express.js, Gemini AI, and PostgreSQL.
 
+## 🌟 Features
 
-## Getting started
+- **AI-Powered Chat** - Powered by Google Gemini AI
+- **Conversation History** - Persistent chat storage with PostgreSQL
+- **Modern UI** - Built with Next.js 16 and Ant Design
+- **Notes System** - Save and organize important information
+- **PWA Ready** - Installable as a mobile/desktop app
+- **Production Ready** - Docker, CI/CD, and cloud deployment configs included
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-* [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+## 🏗️ Architecture
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/smarthari.2810/ai-bot.git
-git branch -M main
-git push -uf origin main
+├── client/                 # Next.js 16 Frontend
+│   ├── app/               # App router pages
+│   ├── public/            # Static assets
+│   └── Dockerfile         # Production Docker build
+│
+├── server/                 # Express.js Backend
+│   ├── src/
+│   │   ├── routes/        # API routes
+│   │   ├── db/            # Database connection
+│   │   ├── middleware/    # Security & logging
+│   │   └── utils/         # Helper functions
+│   └── Dockerfile         # Production Docker build
+│
+├── nginx/                  # Nginx reverse proxy config
+├── docker-compose.yml      # Full-stack orchestration
+└── .github/workflows/      # CI/CD pipelines
 ```
 
-## Integrate with your tools
+## 🚀 Quick Start
 
-* [Set up project integrations](https://gitlab.com/smarthari.2810/ai-bot/-/settings/integrations)
-
-## Collaborate with your team
-
-* [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
-=======
-# Chatbot ML Project
-
-A production-ready AI chatbot application built with Next.js, Node.js (Express), OpenAI, and PostgreSQL.
-
-## Project Structure
-
-- **client/**: Next.js frontend application with Ant Design.
-- **server/**: Node.js Express backend with TypeScript.
-
-## Setup Instructions
-
-### 1. Environment Variables
-
-Navigate to the `server/` directory and open `.env`. Fill in your credentials:
+### Development
 
 ```bash
-PORT=5000
-OPENAI_API_KEY=sk-your-openai-api-key
-DATABASE_URL=postgres://user:password@localhost:5432/your_database
-```
+# Install all dependencies
+npm run install:all
 
-### 2. Database (Optional)
-
-Ensure you have PostgreSQL installed and running. Create a database (e.g., `chatbot`). The application will automatically create the necessary `messages` table on startup if `DATABASE_URL` is valid.
-
-### 3. Running the Application
-
-You can run both client and server in separate terminals.
-
-**Server**:
-```bash
-cd server
-npm install
+# Start development servers
 npm run dev
 ```
 
-**Client**:
+- Frontend: http://localhost:3000
+- Backend: http://localhost:4000
+
+### Production (Docker)
+
+```bash
+# Copy and configure environment
+cp .env.production.example .env
+nano .env  # Add your GEMINI_API_KEY
+
+# Build and run
+npm run docker:prod
+
+# View logs
+npm run docker:logs
+```
+
+## ☁️ Cloud Deployment
+
+### Option 1: Railway (Recommended)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template)
+
+1. Connect your GitHub repository
+2. Add PostgreSQL database
+3. Set environment variables:
+   - `GEMINI_API_KEY`
+   - `FRONTEND_URL`
+
+### Option 2: Render
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
+
+Uses `render.yaml` for automatic setup.
+
+### Option 3: Vercel + Railway Split
+
+**Frontend (Vercel):**
 ```bash
 cd client
-npm install
-npm run dev
+vercel deploy --prod
 ```
 
-The frontend will be available at `http://localhost:3000`.
+**Backend (Railway):**
+```bash
+cd server
+railway up
+```
 
-## Architecture Highlights
+### Option 4: VPS (DigitalOcean, AWS, etc.)
 
-- **Frontend**: Next.js App Router for SEO and performance. Ant Design for a clean, professional UI.
-- **Backend**: Modular Express app with Controller-Service-Repository pattern (simplified to Controller-DB for this scope).
-- **Security**: Environment variables for sensitive keys. CORS enabled for frontend-backend communication.
-- **Database**: PostgreSQL for persistent chat history.
->>>>>>> 3b9ff66 (Initial commit: AI Chatbot with Next.js frontend and Express backend)
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
+
+## 🔧 Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `GEMINI_API_KEY` | Google Gemini API key | ✅ |
+| `DATABASE_URL` | PostgreSQL connection string | ✅ |
+| `NODE_ENV` | `development` or `production` | ✅ |
+| `PORT` | Server port (default: 4000) | ❌ |
+| `FRONTEND_URL` | Frontend URL for CORS | ✅ (prod) |
+| `NEXT_PUBLIC_API_URL` | API URL for frontend | ✅ |
+
+## 📊 API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Health check |
+| POST | `/api/chat` | Send message |
+| GET | `/api/conversations` | List conversations |
+| GET | `/api/conversations/:id` | Get conversation |
+| DELETE | `/api/conversations/:id` | Delete conversation |
+| GET | `/api/notes` | List notes |
+| POST | `/api/notes` | Create note |
+
+## 🔒 Security Features
+
+- ✅ Rate limiting
+- ✅ CORS protection
+- ✅ Helmet security headers
+- ✅ Input validation
+- ✅ SQL injection protection
+- ✅ XSS prevention
+
+## 🛠️ NPM Scripts
+
+```bash
+# Development
+npm run dev              # Start all services in dev mode
+
+# Production
+npm run build            # Build client and server
+npm run start            # Start production servers
+
+# Docker
+npm run docker:build     # Build Docker images
+npm run docker:up        # Start containers
+npm run docker:down      # Stop containers
+npm run docker:logs      # View logs
+npm run docker:prod      # Build and start
+npm run docker:clean     # Remove all containers/images
+```
+
+## 📁 Project Structure
+
+```
+Chatbot_ML/
+├── .github/workflows/     # CI/CD pipelines
+├── client/                # Next.js frontend
+├── server/                # Express.js backend
+├── nginx/                 # Nginx configuration
+├── docker-compose.yml     # Docker orchestration
+├── railway.json           # Railway config
+├── render.yaml            # Render config
+├── vercel.json            # Vercel config
+├── DEPLOYMENT.md          # Deployment guide
+└── README.md              # This file
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## 📄 License
+
+ISC License
+
+---
+
+**Built with ❤️ using Next.js, Express, and Gemini AI**
