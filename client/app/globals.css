@@ -43,17 +43,29 @@ body {
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* Ant Design overrides for dark theme */
-.ant-input,
-.ant-input-textarea textarea {
+/* Ant Design overrides - Theme aware input styles */
+.dark .ant-input,
+.dark .ant-input-textarea textarea {
   background: transparent !important;
   color: #fff !important;
   border: none !important;
 }
 
-.ant-input::placeholder,
-.ant-input-textarea textarea::placeholder {
+.light .ant-input,
+.light .ant-input-textarea textarea {
+  background: transparent !important;
+  color: #1a1a1a !important;
+  border: none !important;
+}
+
+.dark .ant-input::placeholder,
+.dark .ant-input-textarea textarea::placeholder {
   color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.light .ant-input::placeholder,
+.light .ant-input-textarea textarea::placeholder {
+  color: rgba(0, 0, 0, 0.4) !important;
 }
 
 .ant-input:focus,

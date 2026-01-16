@@ -1220,8 +1220,8 @@ export default function Home() {
           height: 40px;
           border-radius: 12px;
           border: none;
-          background: rgba(255,255,255,0.1);
-          color: rgba(255,255,255,0.4);
+          background: rgba(99, 102, 241, 0.1);
+          color: rgba(99, 102, 241, 0.6);
           cursor: pointer;
           display: flex;
           align-items: center;
@@ -1257,11 +1257,27 @@ export default function Home() {
         .messages-area::-webkit-scrollbar-track { background: transparent; }
         .messages-area::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); border-radius: 3px; }
 
-        /* Drawer Override */
-        .ant-drawer-content { background: #0a0a14 !important; }
-        .ant-drawer-header { background: #0a0a14 !important; border-color: rgba(255,255,255,0.1) !important; }
-        .ant-drawer-title { color: #fff !important; }
-        .ant-drawer-close { color: #fff !important; }
+        /* Drawer Override - Dark Mode */
+        .dark .ant-drawer-content { background: #0a0a14 !important; }
+        .dark .ant-drawer-header { background: #0a0a14 !important; border-color: rgba(255,255,255,0.1) !important; }
+        .dark .ant-drawer-title { color: #fff !important; }
+        .dark .ant-drawer-close { color: #fff !important; }
+        .dark .ant-drawer-body { color: #fff !important; }
+
+        /* Drawer Override - Light Mode */
+        .light .ant-drawer-content { background: #f5f5f7 !important; }
+        .light .ant-drawer-header { background: #fff !important; border-color: rgba(0,0,0,0.1) !important; }
+        .light .ant-drawer-title { color: #1a1a1a !important; }
+        .light .ant-drawer-close { color: #1a1a1a !important; }
+        .light .ant-drawer-body { color: #1a1a1a !important; }
+
+        /* Light mode specific fixes */
+        .light .chat-input {
+          color: #1a1a1a !important;
+        }
+        .light .chat-input::placeholder {
+          color: rgba(0, 0, 0, 0.4) !important;
+        }
       `}</style>
     </div>
   );
