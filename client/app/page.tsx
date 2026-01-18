@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Input, Button, Avatar, Typography, Tooltip, Drawer, Switch, message as antMessage } from 'antd';
+import { Input, Button, Avatar, Typography, Tooltip, Drawer, Switch, Dropdown, message as antMessage } from 'antd';
+import type { MenuProps } from 'antd';
 import {
   SendOutlined,
   UserOutlined,
@@ -26,7 +27,11 @@ import {
   EditOutlined,
   SaveOutlined,
   PlusOutlined,
-  PictureOutlined
+  PictureOutlined,
+  SearchOutlined,
+  RobotOutlined,
+  ExperimentOutlined,
+  FileAddOutlined
 } from '@ant-design/icons';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -916,6 +921,69 @@ export default function Home() {
       <footer className="input-area" style={{ background: theme.headerBg, borderColor: theme.border }}>
         <div className="input-container">
           <div className="input-wrapper" style={{ background: theme.inputBg, borderColor: theme.border }}>
+            {/* Plus Menu Button */}
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: 'image',
+                    icon: <PictureOutlined style={{ color: '#ec4899' }} />,
+                    label: 'Create image',
+                    onClick: () => setImageMode(true)
+                  },
+                  {
+                    key: 'chat',
+                    icon: <RobotOutlined style={{ color: '#6366f1' }} />,
+                    label: 'Chat mode',
+                    onClick: () => setImageMode(false)
+                  },
+                  { type: 'divider' },
+                  {
+                    key: 'notes',
+                    icon: <FileTextOutlined style={{ color: '#22c55e' }} />,
+                    label: 'My Notes',
+                    onClick: () => setNotesOpen(true)
+                  },
+                  {
+                    key: 'export',
+                    icon: <DownloadOutlined style={{ color: '#f59e0b' }} />,
+                    label: 'Export chat',
+                    onClick: exportConversation
+                  },
+                  { type: 'divider' },
+                  {
+                    key: 'clear',
+                    icon: <DeleteOutlined style={{ color: '#ef4444' }} />,
+                    label: 'Clear chat',
+                    onClick: clearChat,
+                    danger: true
+                  }
+                ] as MenuProps['items']
+              }}
+              trigger={['click']}
+              placement="topLeft"
+            >
+              <button
+                className="plus-menu-btn"
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  background: 'rgba(99, 102, 241, 0.1)',
+                  color: '#6366f1',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s',
+                  fontSize: '18px'
+                }}
+              >
+                <PlusOutlined />
+              </button>
+            </Dropdown>
+
             <TextArea
               value={inputValue}
               onChange={e => setInputValue(e.target.value)}
@@ -925,7 +993,7 @@ export default function Home() {
                   handleSubmit();
                 }
               }}
-              placeholder={imageMode ? "Describe the image you want to generate..." : "Type your message..."}
+              placeholder={imageMode ? "🎨 Describe the image you want to generate..." : "Ask anything..."}
               autoSize={{ minRows: 1, maxRows: 4 }}
               disabled={loading || imageLoading}
               className="chat-input"
@@ -980,7 +1048,7 @@ export default function Home() {
           <p className="input-hint" style={{ color: theme.textMuted }}>
             {imageMode
               ? '🎨 Image Mode • Describe your image and press Enter to generate'
-              : 'Press Enter to send • Shift + Enter for new line • 🎤 Click mic for voice input'}
+              : 'Press Enter to send • Click + for more options'}
           </p>
         </div>
       </footer>
@@ -1419,6 +1487,44 @@ export default function Home() {
         }
         .light .chat-input::placeholder {
           color: rgba(0, 0, 0, 0.4) !important;
+        }
+
+        /* Plus Menu Button */
+        .plus-menu-btn:hover {
+          background: rgba(99, 102, 241, 0.2) !important;
+          transform: scale(1.05);
+        }
+
+        /* Dropdown Menu Styling - Dark Mode */
+        .dark .ant-dropdown-menu {
+          background: #252538 !important;
+          border: 1px solid rgba(255,255,255,0.1) !important;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.5) !important;
+        }
+        .dark .ant-dropdown-menu-item {
+          color: #e4e4e7 !important;
+        }
+        .dark .ant-dropdown-menu-item:hover {
+          background: rgba(99, 102, 241, 0.2) !important;
+        }
+        .dark .ant-dropdown-menu-item-divider {
+          background: rgba(255,255,255,0.1) !important;
+        }
+
+        /* Dropdown Menu Styling - Light Mode */
+        .light .ant-dropdown-menu {
+          background: #ffffff !important;
+          border: 1px solid rgba(0,0,0,0.08) !important;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.15) !important;
+        }
+        .light .ant-dropdown-menu-item {
+          color: #1a1a1a !important;
+        }
+        .light .ant-dropdown-menu-item:hover {
+          background: rgba(99, 102, 241, 0.1) !important;
+        }
+        .light .ant-dropdown-menu-item-divider {
+          background: rgba(0,0,0,0.08) !important;
         }
       `}</style>
     </div>
