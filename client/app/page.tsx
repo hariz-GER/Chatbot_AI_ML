@@ -140,15 +140,9 @@ export default function Home() {
     setInputValue('');
     setLoading(true);
 
-    // Create placeholder for AI response
+    // Generate ID for AI response (but don't add message yet)
     const aiMessageId = generateId();
-    const aiMessage: Message = {
-      id: aiMessageId,
-      role: 'assistant',
-      content: '',
-      timestamp: new Date()
-    };
-    setMessages(prev => [...prev, aiMessage]);
+    let messageAdded = false;
 
     try {
       // Use streaming endpoint
@@ -182,12 +176,25 @@ export default function Home() {
                 const data = JSON.parse(line.slice(6));
                 if (data.text) {
                   fullText += data.text;
-                  // Update the AI message content progressively
-                  setMessages(prev => prev.map(msg =>
-                    msg.id === aiMessageId
-                      ? { ...msg, content: fullText }
-                      : msg
-                  ));
+
+                  // Only add the message when we receive the first content
+                  if (!messageAdded) {
+                    const aiMessage: Message = {
+                      id: aiMessageId,
+                      role: 'assistant',
+                      content: fullText,
+                      timestamp: new Date()
+                    };
+                    setMessages(prev => [...prev, aiMessage]);
+                    messageAdded = true;
+                  } else {
+                    // Update existing message content progressively
+                    setMessages(prev => prev.map(msg =>
+                      msg.id === aiMessageId
+                        ? { ...msg, content: fullText }
+                        : msg
+                    ));
+                  }
                 }
                 if (data.done) break;
               } catch (e) { }
@@ -196,12 +203,22 @@ export default function Home() {
         }
       }
     } catch (error: any) {
-      // Update the placeholder message with error
-      setMessages(prev => prev.map(msg =>
-        msg.id === aiMessageId
-          ? { ...msg, content: '⚠️ Connection error. Please try again.' }
-          : msg
-      ));
+      // Only show error if we haven't added a message yet
+      if (!messageAdded) {
+        const errorMessage: Message = {
+          id: aiMessageId,
+          role: 'assistant',
+          content: '⚠️ Connection error. Please try again.',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      } else {
+        setMessages(prev => prev.map(msg =>
+          msg.id === aiMessageId
+            ? { ...msg, content: msg.content + '\n\n⚠️ Connection interrupted.' }
+            : msg
+        ));
+      }
     } finally {
       setLoading(false);
     }
@@ -403,14 +420,14 @@ export default function Home() {
   };
 
   const theme = {
-    bg: darkMode ? '#0a0a14' : '#f5f5f7',
-    headerBg: darkMode ? 'rgba(10, 10, 30, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+    bg: darkMode ? '#1e1e2e' : '#f8f9fa',
+    headerBg: darkMode ? 'rgba(30, 30, 50, 0.95)' : 'rgba(255, 255, 255, 0.98)',
     bubbleUser: darkMode ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' : 'linear-gradient(135deg, #3b82f6, #6366f1)',
-    bubbleAi: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)',
-    text: darkMode ? '#fff' : '#1a1a1a',
-    textMuted: darkMode ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)',
-    border: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-    inputBg: darkMode ? 'rgba(20, 20, 40, 0.9)' : 'rgba(255,255,255,0.9)',
+    bubbleAi: darkMode ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.04)',
+    text: darkMode ? '#e4e4e7' : '#1a1a1a',
+    textMuted: darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)',
+    border: darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)',
+    inputBg: darkMode ? 'rgba(40, 40, 60, 0.9)' : 'rgba(255,255,255,0.95)',
   };
 
   return (
@@ -1258,15 +1275,15 @@ export default function Home() {
         .messages-area::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); border-radius: 3px; }
 
         /* Drawer Override - Dark Mode */
-        .dark .ant-drawer-content { background: #0a0a14 !important; }
-        .dark .ant-drawer-header { background: #0a0a14 !important; border-color: rgba(255,255,255,0.1) !important; }
-        .dark .ant-drawer-title { color: #fff !important; }
-        .dark .ant-drawer-close { color: #fff !important; }
-        .dark .ant-drawer-body { color: #fff !important; }
+        .dark .ant-drawer-content { background: #1e1e2e !important; }
+        .dark .ant-drawer-header { background: #252538 !important; border-color: rgba(255,255,255,0.15) !important; }
+        .dark .ant-drawer-title { color: #e4e4e7 !important; }
+        .dark .ant-drawer-close { color: #e4e4e7 !important; }
+        .dark .ant-drawer-body { color: #e4e4e7 !important; }
 
         /* Drawer Override - Light Mode */
-        .light .ant-drawer-content { background: #f5f5f7 !important; }
-        .light .ant-drawer-header { background: #fff !important; border-color: rgba(0,0,0,0.1) !important; }
+        .light .ant-drawer-content { background: #f8f9fa !important; }
+        .light .ant-drawer-header { background: #fff !important; border-color: rgba(0,0,0,0.08) !important; }
         .light .ant-drawer-title { color: #1a1a1a !important; }
         .light .ant-drawer-close { color: #1a1a1a !important; }
         .light .ant-drawer-body { color: #1a1a1a !important; }
