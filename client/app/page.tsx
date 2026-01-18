@@ -25,7 +25,8 @@ import {
   FileTextOutlined,
   EditOutlined,
   SaveOutlined,
-  PlusOutlined
+  PlusOutlined,
+  PictureOutlined
 } from '@ant-design/icons';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -41,6 +42,8 @@ interface Message {
   content: string;
   timestamp: Date;
   reaction?: 'like' | 'dislike' | null;
+  image?: string; // Base64 image data
+  imageUrl?: string; // URL for placeholder images
 }
 
 // Starter prompt templates
@@ -65,6 +68,8 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
+  const [imageMode, setImageMode] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -387,6 +392,65 @@ export default function Home() {
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  // Image Generation Function
+  const generateImage = async (prompt?: string) => {
+    const imagePrompt = prompt || inputValue;
+    if (!imagePrompt.trim() || imageLoading) return;
+
+    // Add user message
+    const userMessage: Message = {
+      id: generateId(),
+      role: 'user',
+      content: `🎨 Generate image: ${imagePrompt}`,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue('');
+    setImageLoading(true);
+
+    try {
+      const response = await axios.post('http://localhost:4000/api/image/generate', {
+        prompt: imagePrompt
+      });
+
+      const aiMessage: Message = {
+        id: generateId(),
+        role: 'assistant',
+        content: response.data.demo
+          ? `🎨 Image preview for: "${imagePrompt}"\n\n⚠️ Demo mode - Configure API key for real images`
+          : `🎨 Generated with ${response.data.provider}`,
+        timestamp: new Date(),
+        image: response.data.imageData || undefined,
+        imageUrl: response.data.imageUrl || undefined
+      };
+      setMessages(prev => [...prev, aiMessage]);
+
+      if (response.data.demo) {
+        antMessage.info('Add HF_TOKEN or OPENAI_API_KEY for real image generation');
+      }
+    } catch (error: any) {
+      const errorMessage: Message = {
+        id: generateId(),
+        role: 'assistant',
+        content: `⚠️ Failed to generate image: ${error.response?.data?.message || error.message}`,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+      antMessage.error('Image generation failed');
+    } finally {
+      setImageLoading(false);
+    }
+  };
+
+  // Handle send - routes to chat or image based on mode
+  const handleSubmit = () => {
+    if (imageMode) {
+      generateImage();
+    } else {
+      handleSend();
+    }
   };
 
   // Custom code block renderer with copy button
@@ -716,6 +780,37 @@ export default function Home() {
                         >
                           {item.content}
                         </ReactMarkdown>
+
+                        {/* Display Generated Image */}
+                        {(item.image || item.imageUrl) && (
+                          <div className="generated-image-container" style={{ marginTop: '12px' }}>
+                            <img
+                              src={item.image ? `data:image/png;base64,${item.image}` : item.imageUrl}
+                              alt="Generated image"
+                              style={{
+                                maxWidth: '100%',
+                                borderRadius: '12px',
+                                boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
+                              }}
+                            />
+                            <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
+                              <Tooltip title="Download Image">
+                                <Button
+                                  size="small"
+                                  icon={<DownloadOutlined />}
+                                  onClick={() => {
+                                    const link = document.createElement('a');
+                                    link.href = item.image ? `data:image/png;base64,${item.image}` : (item.imageUrl || '');
+                                    link.download = `generated-image-${Date.now()}.png`;
+                                    link.click();
+                                  }}
+                                >
+                                  Download
+                                </Button>
+                              </Tooltip>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -827,15 +922,38 @@ export default function Home() {
               onPressEnter={(e) => {
                 if (!e.shiftKey) {
                   e.preventDefault();
-                  handleSend();
+                  handleSubmit();
                 }
               }}
-              placeholder="Type your message..."
+              placeholder={imageMode ? "Describe the image you want to generate..." : "Type your message..."}
               autoSize={{ minRows: 1, maxRows: 4 }}
-              disabled={loading}
+              disabled={loading || imageLoading}
               className="chat-input"
               style={{ color: theme.text }}
             />
+
+            {/* Image Mode Toggle */}
+            <Tooltip title={imageMode ? "Switch to Chat mode" : "Switch to Image Generation mode"}>
+              <button
+                className={`image-mode-btn ${imageMode ? 'active' : ''}`}
+                onClick={() => setImageMode(!imageMode)}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  background: imageMode ? 'linear-gradient(135deg, #ec4899, #f43f5e)' : 'rgba(99, 102, 241, 0.1)',
+                  color: imageMode ? '#fff' : '#6366f1',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <PictureOutlined />
+              </button>
+            </Tooltip>
 
             <Tooltip title={isListening ? "Stop listening" : "Voice input"}>
               <button
@@ -847,15 +965,22 @@ export default function Home() {
             </Tooltip>
 
             <button
-              className={`send-button ${inputValue.trim() && !loading ? 'active' : ''}`}
-              onClick={() => handleSend()}
-              disabled={loading || !inputValue.trim()}
+              className={`send-button ${inputValue.trim() && !loading && !imageLoading ? 'active' : ''}`}
+              onClick={() => handleSubmit()}
+              disabled={(loading || imageLoading) || !inputValue.trim()}
+              style={{
+                background: imageMode && inputValue.trim() && !imageLoading
+                  ? 'linear-gradient(135deg, #ec4899, #f43f5e)'
+                  : undefined
+              }}
             >
-              {loading ? <LoadingOutlined spin /> : <SendOutlined />}
+              {(loading || imageLoading) ? <LoadingOutlined spin /> : (imageMode ? <PictureOutlined /> : <SendOutlined />)}
             </button>
           </div>
           <p className="input-hint" style={{ color: theme.textMuted }}>
-            Press Enter to send • Shift + Enter for new line • 🎤 Click mic for voice input
+            {imageMode
+              ? '🎨 Image Mode • Describe your image and press Enter to generate'
+              : 'Press Enter to send • Shift + Enter for new line • 🎤 Click mic for voice input'}
           </p>
         </div>
       </footer>

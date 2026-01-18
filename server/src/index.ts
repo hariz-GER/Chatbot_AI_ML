@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import chatRoutes from './routes/chatRoutes';
+import imageRoutes from './routes/imageRoutes';
 import { initDb } from './db';
 import logger from './utils/logger';
 import {
@@ -67,6 +68,7 @@ app.use('/api', apiLimiter);
 
 // Routes
 app.use('/api', chatRoutes);
+app.use('/api/image', imageRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -86,6 +88,7 @@ app.get('/', (req, res) => {
         status: 'running',
         endpoints: {
             chat: '/api/chat',
+            image: '/api/image/generate',
             health: '/health'
         }
     });
