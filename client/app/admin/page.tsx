@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Table, Card, Statistic, Button, message, Tag, Avatar, Space, Input } from 'antd';
+import { Table, Card, Statistic, Button, message, Tag, Avatar, Space, Input, Spin, Result } from 'antd';
 import {
     UserOutlined,
     DownloadOutlined,
@@ -10,7 +10,8 @@ import {
     CalendarOutlined,
     ThunderboltOutlined,
     SearchOutlined,
-    ArrowLeftOutlined
+    ArrowLeftOutlined,
+    LockOutlined
 } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
@@ -36,32 +37,113 @@ export default function AdminDashboard() {
     const [stats, setStats] = useState<Stats | null>(null);
     const [loading, setLoading] = useState(true);
     const [searchText, setSearchText] = useState('');
+    const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+    const [checkingAuth, setCheckingAuth] = useState(true);
     const router = useRouter();
 
+    // Check if user is admin
+    useEffect(() => {
+        const checkAdmin = async () => {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                setIsAdmin(false);
+                setCheckingAuth(false);
+                return;
+            }
+
+            try {
+                const response = await axios.get('http://localhost:4000/api/admin/check', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setIsAdmin(response.data.isAdmin);
+            } catch {
+                setIsAdmin(false);
+            } finally {
+                setCheckingAuth(false);
+            }
+        };
+        checkAdmin();
+    }, []);
+
     const fetchData = async () => {
+        const token = localStorage.getItem('authToken');
+        if (!token) return;
+
         setLoading(true);
         try {
+            const headers = { Authorization: `Bearer ${token}` };
             const [usersRes, statsRes] = await Promise.all([
-                axios.get('http://localhost:4000/api/admin/users'),
-                axios.get('http://localhost:4000/api/admin/stats')
+                axios.get('http://localhost:4000/api/admin/users', { headers }),
+                axios.get('http://localhost:4000/api/admin/stats', { headers })
             ]);
             setUsers(usersRes.data.users);
             setStats(statsRes.data.stats);
-        } catch (error) {
-            message.error('Failed to fetch data');
+        } catch (error: any) {
+            if (error.response?.status === 403) {
+                message.error('Access denied. Admin privileges required.');
+                setIsAdmin(false);
+            } else {
+                message.error('Failed to fetch data');
+            }
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        if (isAdmin) {
+            fetchData();
+        }
+    }, [isAdmin]);
 
     const handleExport = () => {
-        window.open('http://localhost:4000/api/admin/users/export', '_blank');
+        const token = localStorage.getItem('authToken');
+        // For CSV export, we need to add token to URL or use a different approach
+        window.open(`http://localhost:4000/api/admin/users/export?token=${token}`, '_blank');
         message.success('Downloading users CSV...');
     };
+
+    // Show loading while checking auth
+    if (checkingAuth) {
+        return (
+            <div style={{
+                minHeight: '100vh',
+                background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+            }}>
+                <Spin size="large" />
+            </div>
+        );
+    }
+
+    // Show access denied if not admin
+    if (!isAdmin) {
+        return (
+            <div style={{
+                minHeight: '100vh',
+                background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+            }}>
+                <Result
+                    icon={<LockOutlined style={{ color: '#ef4444' }} />}
+                    title={<span style={{ color: '#e4e4e7' }}>Access Denied</span>}
+                    subTitle={<span style={{ color: 'rgba(255,255,255,0.5)' }}>You don't have permission to access the admin dashboard. Please login with an admin account.</span>}
+                    extra={[
+                        <Button key="home" onClick={() => router.push('/')} style={{ marginRight: '8px' }}>
+                            Go to Chat
+                        </Button>,
+                        <Button key="login" type="primary" onClick={() => router.push('/auth')}>
+                            Login
+                        </Button>
+                    ]}
+                />
+            </div>
+        );
+    }
 
     const formatDate = (date: string | null) => {
         if (!date) return 'Never';
