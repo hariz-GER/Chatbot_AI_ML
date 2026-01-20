@@ -9,6 +9,7 @@ dotenv.config();
 import chatRoutes from './routes/chatRoutes';
 import imageRoutes from './routes/imageRoutes';
 import authRoutes from './routes/authRoutes';
+import adminRoutes from './routes/adminRoutes';
 import { initDb } from './db';
 import logger from './utils/logger';
 import {
@@ -35,6 +36,7 @@ if (isProduction) {
 const allowedOrigins = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
+    'http://localhost:3001',
     process.env.FRONTEND_URL
 ].filter(Boolean);
 
@@ -71,6 +73,7 @@ app.use('/api', apiLimiter);
 app.use('/api', chatRoutes);
 app.use('/api/image', imageRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

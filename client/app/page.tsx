@@ -33,7 +33,9 @@ import {
   ExperimentOutlined,
   FileAddOutlined,
   LoginOutlined,
-  LogoutOutlined
+  LogoutOutlined,
+  SettingOutlined,
+  DashboardOutlined
 } from '@ant-design/icons';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -624,6 +626,17 @@ export default function Home() {
           <Button icon={<DeleteOutlined />} onClick={clearChat} danger block>
             Clear Chat
           </Button>
+
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '16px', marginTop: '8px' }}>
+            <Button
+              icon={<DashboardOutlined />}
+              onClick={() => window.location.href = '/admin'}
+              block
+              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', border: 'none', color: '#fff' }}
+            >
+              🛡️ Admin Dashboard
+            </Button>
+          </div>
 
           <div style={{ marginTop: '20px' }}>
             <Text style={{ color: theme.textMuted }}>Chat Statistics</Text>
