@@ -41,6 +41,15 @@ import axios from 'axios';
 const { Text } = Typography;
 const { TextArea } = Input;
 
+interface Attachment {
+  id: string;
+  name: string;
+  type: 'image' | 'document' | 'file';
+  data: string; // Base64 data
+  mimeType: string;
+  size: number;
+}
+
 interface Message {
   id: string;
   role: 'user' | 'assistant';
@@ -49,6 +58,7 @@ interface Message {
   reaction?: 'like' | 'dislike' | null;
   image?: string; // Base64 image data
   imageUrl?: string; // URL for placeholder images
+  attachments?: Attachment[]; // File attachments
 }
 
 // Starter prompt templates
@@ -84,8 +94,12 @@ export default function Home() {
   const [currentNote, setCurrentNote] = useState('');
   const [currentNoteTitle, setCurrentNoteTitle] = useState('');
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const documentInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -449,12 +463,66 @@ export default function Home() {
     }
   };
 
+  // File upload handlers
+  const handleFileUpload = (files: FileList | null, type: 'image' | 'document' | 'file') => {
+    if (!files || files.length === 0) return;
+
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64 = e.target?.result as string;
+        const attachment: Attachment = {
+          id: generateId(),
+          name: file.name,
+          type: type,
+          data: base64,
+          mimeType: file.type,
+          size: file.size
+        };
+        setPendingAttachments(prev => [...prev, attachment]);
+        antMessage.success(`${file.name} added`);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeAttachment = (id: string) => {
+    setPendingAttachments(prev => prev.filter(a => a.id !== id));
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  };
+
   // Handle send - routes to chat or image based on mode
   const handleSubmit = () => {
     if (imageMode) {
       generateImage();
-    } else {
+      setPendingAttachments([]);
+      return;
+    }
+
+    // If only attachments (no text), just share them in chat
+    if (pendingAttachments.length > 0 && !inputValue.trim()) {
+      const userMessage: Message = {
+        id: generateId(),
+        role: 'user',
+        content: `Shared ${pendingAttachments.length} file(s)`,
+        timestamp: new Date(),
+        attachments: [...pendingAttachments]
+      };
+      setMessages(prev => [...prev, userMessage]);
+      setPendingAttachments([]);
+      antMessage.success('Files shared in chat');
+      return;
+    }
+
+    // Regular chat message (with or without attachments)
+    if (inputValue.trim()) {
       handleSend();
+      setPendingAttachments([]);
     }
   };
 
@@ -768,7 +836,47 @@ export default function Home() {
                     }}
                   >
                     {item.role === 'user' ? (
-                      <p style={{ color: '#fff' }}>{item.content}</p>
+                      <div>
+                        {/* User Attachments */}
+                        {item.attachments && item.attachments.length > 0 && (
+                          <div style={{ marginBottom: '8px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                            {item.attachments.map(att => (
+                              att.type === 'image' ? (
+                                <img
+                                  key={att.id}
+                                  src={att.data}
+                                  alt={att.name}
+                                  style={{
+                                    maxWidth: '150px',
+                                    maxHeight: '150px',
+                                    borderRadius: '8px',
+                                    objectFit: 'cover'
+                                  }}
+                                />
+                              ) : (
+                                <div
+                                  key={att.id}
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    padding: '6px 10px',
+                                    background: 'rgba(255,255,255,0.2)',
+                                    borderRadius: '6px',
+                                    fontSize: '12px'
+                                  }}
+                                >
+                                  <FileTextOutlined />
+                                  <span style={{ maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {att.name}
+                                  </span>
+                                </div>
+                              )
+                            ))}
+                          </div>
+                        )}
+                        <p style={{ color: '#fff', margin: 0 }}>{item.content}</p>
+                      </div>
                     ) : (
                       <div className="markdown-content" style={{ color: theme.text }}>
                         <ReactMarkdown
@@ -920,13 +1028,126 @@ export default function Home() {
       {/* Input Area */}
       <footer className="input-area" style={{ background: theme.headerBg, borderColor: theme.border }}>
         <div className="input-container">
+          {/* Pending Attachments Display */}
+          {pendingAttachments.length > 0 && (
+            <div className="pending-attachments" style={{
+              display: 'flex',
+              gap: '8px',
+              flexWrap: 'wrap',
+              marginBottom: '12px',
+              padding: '12px',
+              background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+              borderRadius: '12px',
+              border: `1px solid ${theme.border}`
+            }}>
+              {pendingAttachments.map(attachment => (
+                <div
+                  key={attachment.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '8px 12px',
+                    background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                    borderRadius: '8px',
+                    maxWidth: '200px'
+                  }}
+                >
+                  {attachment.type === 'image' ? (
+                    <img
+                      src={attachment.data}
+                      alt={attachment.name}
+                      style={{ width: '32px', height: '32px', borderRadius: '4px', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <FileTextOutlined style={{ fontSize: '20px', color: '#6366f1' }} />
+                  )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontSize: '12px',
+                      fontWeight: 500,
+                      color: theme.text,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {attachment.name}
+                    </div>
+                    <div style={{ fontSize: '10px', color: theme.textMuted }}>
+                      {formatFileSize(attachment.size)}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => removeAttachment(attachment.id)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#ef4444',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <DeleteOutlined />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
           <div className="input-wrapper" style={{ background: theme.inputBg, borderColor: theme.border }}>
+            {/* Hidden File Inputs */}
+            <input
+              type="file"
+              ref={imageInputRef}
+              accept="image/*"
+              multiple
+              style={{ display: 'none' }}
+              onChange={(e) => handleFileUpload(e.target.files, 'image')}
+            />
+            <input
+              type="file"
+              ref={documentInputRef}
+              accept=".pdf,.doc,.docx,.txt,.md,.csv,.xls,.xlsx"
+              multiple
+              style={{ display: 'none' }}
+              onChange={(e) => handleFileUpload(e.target.files, 'document')}
+            />
+            <input
+              type="file"
+              ref={fileInputRef}
+              multiple
+              style={{ display: 'none' }}
+              onChange={(e) => handleFileUpload(e.target.files, 'file')}
+            />
+
             {/* Plus Menu Button */}
             <Dropdown
               menu={{
                 items: [
                   {
-                    key: 'image',
+                    key: 'upload-image',
+                    icon: <PictureOutlined style={{ color: '#3b82f6' }} />,
+                    label: 'Add photos',
+                    onClick: () => imageInputRef.current?.click()
+                  },
+                  {
+                    key: 'upload-doc',
+                    icon: <FileAddOutlined style={{ color: '#22c55e' }} />,
+                    label: 'Add documents',
+                    onClick: () => documentInputRef.current?.click()
+                  },
+                  {
+                    key: 'upload-file',
+                    icon: <FileTextOutlined style={{ color: '#f59e0b' }} />,
+                    label: 'Add files',
+                    onClick: () => fileInputRef.current?.click()
+                  },
+                  { type: 'divider' },
+                  {
+                    key: 'create-image',
                     icon: <PictureOutlined style={{ color: '#ec4899' }} />,
                     label: 'Create image',
                     onClick: () => setImageMode(true)
@@ -940,13 +1161,13 @@ export default function Home() {
                   { type: 'divider' },
                   {
                     key: 'notes',
-                    icon: <FileTextOutlined style={{ color: '#22c55e' }} />,
+                    icon: <FileTextOutlined style={{ color: '#8b5cf6' }} />,
                     label: 'My Notes',
                     onClick: () => setNotesOpen(true)
                   },
                   {
                     key: 'export',
-                    icon: <DownloadOutlined style={{ color: '#f59e0b' }} />,
+                    icon: <DownloadOutlined style={{ color: '#06b6d4' }} />,
                     label: 'Export chat',
                     onClick: exportConversation
                   },
@@ -970,8 +1191,8 @@ export default function Home() {
                   height: '36px',
                   borderRadius: '10px',
                   border: 'none',
-                  background: 'rgba(99, 102, 241, 0.1)',
-                  color: '#6366f1',
+                  background: pendingAttachments.length > 0 ? 'linear-gradient(135deg, #22c55e, #16a34a)' : 'rgba(99, 102, 241, 0.1)',
+                  color: pendingAttachments.length > 0 ? '#fff' : '#6366f1',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
