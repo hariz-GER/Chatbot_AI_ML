@@ -74,23 +74,75 @@ export const initDb = async () => {
         return;
     }
 
-    const createTableQuery = `
-    CREATE TABLE IF NOT EXISTS messages (
-      id SERIAL PRIMARY KEY,
-      role VARCHAR(10) NOT NULL CHECK (role IN ('user', 'assistant')),
-      content TEXT NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages(created_at DESC);
-  `;
-
     try {
-        await pool!.query(createTableQuery);
+        // Create users table first
+        await pool!.query(`
+            CREATE TABLE IF NOT EXISTS users (
+              id SERIAL PRIMARY KEY,
+              email VARCHAR(255) UNIQUE NOT NULL,
+              password_hash VARCHAR(255) NOT NULL,
+              name VARCHAR(100) NOT NULL,
+              avatar_url VARCHAR(500),
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              last_login TIMESTAMP
+            );
+        `);
+
+        await pool!.query(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);`);
+
+        // Check if messages table exists
+        const messagesTableExists = await pool!.query(`
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_schema = 'public' 
+                AND table_name = 'messages'
+            );
+        `);
+
+        if (messagesTableExists.rows[0].exists) {
+            // Add user_id column if it doesn't exist
+            await pool!.query(`
+                ALTER TABLE messages 
+                ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id) ON DELETE CASCADE;
+            `).catch(() => {
+                // Column might already exist, ignore error
+            });
+        } else {
+            // Create messages table with user_id
+            await pool!.query(`
+                CREATE TABLE messages (
+                  id SERIAL PRIMARY KEY,
+                  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                  role VARCHAR(10) NOT NULL CHECK (role IN ('user', 'assistant')),
+                  content TEXT NOT NULL,
+                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+            `);
+        }
+
+        await pool!.query(`CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages(created_at DESC);`);
+
+        // Try to create user_id index (may fail if column doesn't exist)
+        await pool!.query(`CREATE INDEX IF NOT EXISTS idx_messages_user_id ON messages(user_id);`).catch(() => { });
+
+        // Create conversations table
+        await pool!.query(`
+            CREATE TABLE IF NOT EXISTS conversations (
+              id SERIAL PRIMARY KEY,
+              user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+              title VARCHAR(255) DEFAULT 'New Chat',
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        await pool!.query(`CREATE INDEX IF NOT EXISTS idx_conversations_user_id ON conversations(user_id);`);
+
         console.log("✅ Database initialized successfully.");
     } catch (error) {
         console.error("❌ Error initializing database:", error);
-        throw error;
+        // Don't throw - let the app continue running
     }
 };
 

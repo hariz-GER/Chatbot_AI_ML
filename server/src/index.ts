@@ -8,6 +8,7 @@ dotenv.config();
 
 import chatRoutes from './routes/chatRoutes';
 import imageRoutes from './routes/imageRoutes';
+import authRoutes from './routes/authRoutes';
 import { initDb } from './db';
 import logger from './utils/logger';
 import {
@@ -50,7 +51,7 @@ app.use(cors({
         }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
@@ -69,6 +70,7 @@ app.use('/api', apiLimiter);
 // Routes
 app.use('/api', chatRoutes);
 app.use('/api/image', imageRoutes);
+app.use('/api/auth', authRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

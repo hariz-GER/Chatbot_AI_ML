@@ -31,7 +31,9 @@ import {
   SearchOutlined,
   RobotOutlined,
   ExperimentOutlined,
-  FileAddOutlined
+  FileAddOutlined,
+  LoginOutlined,
+  LogoutOutlined
 } from '@ant-design/icons';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -95,6 +97,7 @@ export default function Home() {
   const [currentNoteTitle, setCurrentNoteTitle] = useState('');
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
+  const [user, setUser] = useState<{ id: number; email: string; name: string } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -110,6 +113,19 @@ export default function Home() {
   useEffect(() => {
     scrollToBottom();
   }, [messages, loading]);
+
+  // Load user from localStorage on mount
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        localStorage.removeItem('user');
+        localStorage.removeItem('authToken');
+      }
+    }
+  }, []);
 
   // Initialize speech recognition
   useEffect(() => {
@@ -287,6 +303,13 @@ export default function Home() {
   const clearChat = () => {
     setMessages([]);
     antMessage.success('Chat cleared!');
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    setUser(null);
+    antMessage.success('Logged out successfully');
   };
 
   // Notes Functions
@@ -785,6 +808,73 @@ export default function Home() {
                 onClick={exportConversation}
               />
             </Tooltip>
+
+            {/* User Auth Section */}
+            {user ? (
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: 'profile',
+                      icon: <UserOutlined />,
+                      label: (
+                        <div>
+                          <div style={{ fontWeight: 600 }}>{user.name}</div>
+                          <div style={{ fontSize: '12px', opacity: 0.7 }}>{user.email}</div>
+                        </div>
+                      ),
+                      disabled: true
+                    },
+                    { type: 'divider' },
+                    {
+                      key: 'logout',
+                      icon: <LogoutOutlined style={{ color: '#ef4444' }} />,
+                      label: 'Sign Out',
+                      onClick: handleLogout,
+                      danger: true
+                    }
+                  ]
+                }}
+                trigger={['click']}
+                placement="bottomRight"
+              >
+                <Button
+                  type="text"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '4px 12px',
+                    height: 'auto',
+                    background: 'rgba(99, 102, 241, 0.1)',
+                    borderRadius: '20px'
+                  }}
+                >
+                  <Avatar
+                    size="small"
+                    style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
+                  >
+                    {user.name.charAt(0).toUpperCase()}
+                  </Avatar>
+                  <span style={{ color: theme.text, fontSize: '14px' }}>{user.name.split(' ')[0]}</span>
+                </Button>
+              </Dropdown>
+            ) : (
+              <Tooltip title="Sign In">
+                <Button
+                  type="text"
+                  icon={<LoginOutlined style={{ color: theme.text }} />}
+                  onClick={() => window.location.href = '/auth'}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <span style={{ color: theme.text, fontSize: '14px' }}>Sign In</span>
+                </Button>
+              </Tooltip>
+            )}
           </div>
         </div>
       </header>
