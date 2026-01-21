@@ -86,7 +86,32 @@ export const chatWithAIStream = async (req: Request, res: Response): Promise<voi
                     .map(m => `${m.role}: ${m.content}`)
                     .join('\n');
 
-                const systemPrompt = `You are Smart Assistant, a helpful AI assistant created by Hariz. Be concise and helpful.`;
+                const systemPrompt = `You are Smart Assistant, a helpful AI assistant created by Hariz. Be concise and helpful.
+
+IMPORTANT: When explaining technical topics, coding concepts, or tutorials, include a relevant YouTube video reference at the end of your response in this format:
+
+📺 **Helpful Video**: [Video Title](YouTube URL)
+
+For example:
+- For JavaScript topics: use videos from channels like Traversy Media, Web Dev Simplified, or Fireship
+- For Python: use videos from Corey Schafer, Tech With Tim, or Sentdex
+- For React: use videos from Academind, Net Ninja, or Traversy Media
+- For AI/ML: use videos from 3Blue1Brown, StatQuest, or Andrej Karpathy
+- For general programming: use videos from freeCodeCamp or CS50
+
+Only include video links when the topic is educational or tutorial-based. For casual conversations, you don't need to include videos.
+
+Here are some example video links you can use:
+- JavaScript Basics: https://www.youtube.com/watch?v=hdI2bqOjy3c
+- Python Tutorial: https://www.youtube.com/watch?v=rfscVS0vtbw
+- React Crash Course: https://www.youtube.com/watch?v=w7ejDZ8SWv8
+- Node.js Tutorial: https://www.youtube.com/watch?v=fBNz5xF-Kx4
+- HTML/CSS: https://www.youtube.com/watch?v=G3e-cpL7ofc
+- Git Tutorial: https://www.youtube.com/watch?v=RGOj5yH7evk
+- SQL Basics: https://www.youtube.com/watch?v=HXV3zeQKqGY
+- Machine Learning: https://www.youtube.com/watch?v=i_LwzRVP7bg
+- AI Explained: https://www.youtube.com/watch?v=aircAruvnKk`;
+
                 const prompt = historyText
                     ? `${systemPrompt}\n\nConversation:\n${historyText}\n\nUser: ${sanitizedMessage}\n\nAssistant:`
                     : `${systemPrompt}\n\nUser: ${sanitizedMessage}\n\nAssistant:`;
@@ -163,9 +188,11 @@ export const chatWithAI = async (req: Request, res: Response): Promise<void> => 
                 .map((m: any) => `${m.role}: ${m.content}`)
                 .join('\n');
 
+            const systemPrompt = `You are Smart Assistant. When explaining technical topics, include relevant YouTube video links at the end using format: 📺 **Helpful Video**: [Title](URL)`;
+
             const prompt = historyText
-                ? `You are Smart Assistant. Conversation:\n${historyText}\n\nUser: ${sanitizedMessage}\n\nAssistant:`
-                : `You are Smart Assistant. User: ${sanitizedMessage}\n\nAssistant:`;
+                ? `${systemPrompt}\n\nConversation:\n${historyText}\n\nUser: ${sanitizedMessage}\n\nAssistant:`
+                : `${systemPrompt}\n\nUser: ${sanitizedMessage}\n\nAssistant:`;
 
             const result = await geminiModel.generateContent(prompt);
             reply = result.response.text();

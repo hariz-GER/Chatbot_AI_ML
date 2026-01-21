@@ -35,7 +35,10 @@ import {
   LoginOutlined,
   LogoutOutlined,
   SettingOutlined,
-  DashboardOutlined
+  DashboardOutlined,
+  YoutubeOutlined,
+  QuestionCircleOutlined,
+  PlayCircleOutlined
 } from '@ant-design/icons';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -808,10 +811,10 @@ export default function Home() {
             )}
           </div>
         </div>
-      </Drawer>
+      </Drawer >
 
       {/* Header */}
-      <header className="chat-header" style={{ background: theme.headerBg, borderColor: theme.border }}>
+      < header className="chat-header" style={{ background: theme.headerBg, borderColor: theme.border }}>
         <div className="header-content">
           <Button
             type="text"
@@ -924,10 +927,10 @@ export default function Home() {
             )}
           </div>
         </div>
-      </header>
+      </header >
 
       {/* Messages Area */}
-      <main className="messages-area">
+      < main className="messages-area" >
         <div className="messages-wrapper">
           {/* Starter Templates (show when no messages) */}
           {messages.length === 0 && (
@@ -1160,10 +1163,10 @@ export default function Home() {
 
           <div ref={messagesEndRef} />
         </div>
-      </main>
+      </main >
 
       {/* Input Area */}
-      <footer className="input-area" style={{ background: theme.headerBg, borderColor: theme.border }}>
+      < footer className="input-area" style={{ background: theme.headerBg, borderColor: theme.border }}>
         <div className="input-container">
           {/* Pending Attachments Display */}
           {pendingAttachments.length > 0 && (
@@ -1409,7 +1412,7 @@ export default function Home() {
               : 'Press Enter to send • Click + for more options'}
           </p>
         </div>
-      </footer>
+      </footer >
 
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -1885,6 +1888,6 @@ export default function Home() {
           background: rgba(0,0,0,0.08) !important;
         }
       `}</style>
-    </div>
+    </div >
   );
 }
