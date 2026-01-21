@@ -139,6 +139,21 @@ export const initDb = async () => {
 
         await pool!.query(`CREATE INDEX IF NOT EXISTS idx_conversations_user_id ON conversations(user_id);`);
 
+        // Create user_sessions table for tracking activity
+        await pool!.query(`
+            CREATE TABLE IF NOT EXISTS user_sessions (
+              id SERIAL PRIMARY KEY,
+              user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+              session_start TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              session_end TIMESTAMP,
+              duration_seconds INTEGER DEFAULT 0,
+              is_active BOOLEAN DEFAULT true
+            );
+        `);
+
+        await pool!.query(`CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON user_sessions(user_id);`);
+        await pool!.query(`CREATE INDEX IF NOT EXISTS idx_sessions_start ON user_sessions(session_start);`);
+
         console.log("✅ Database initialized successfully.");
     } catch (error) {
         console.error("❌ Error initializing database:", error);

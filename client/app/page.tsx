@@ -129,6 +129,40 @@ export default function Home() {
     }
   }, []);
 
+  // Session tracking - track user activity time
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (!token || !user) return;
+
+    const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+    // Start session when user loads the page
+    axios.post('http://localhost:4000/api/admin/session/start', {}, { headers })
+      .catch(() => { }); // Ignore errors silently
+
+    // Send heartbeat every 30 seconds to update session duration
+    const heartbeatInterval = setInterval(() => {
+      axios.post('http://localhost:4000/api/admin/session/heartbeat', {}, { headers })
+        .catch(() => { });
+    }, 30000);
+
+    // End session when user leaves the page
+    const handleBeforeUnload = () => {
+      // Use sendBeacon for reliable delivery on page unload
+      const blob = new Blob([JSON.stringify({})], { type: 'application/json' });
+      navigator.sendBeacon?.('http://localhost:4000/api/admin/session/end', blob);
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      clearInterval(heartbeatInterval);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      // End session when component unmounts
+      axios.post('http://localhost:4000/api/admin/session/end', {}, { headers }).catch(() => { });
+    };
+  }, [user]);
+
   // Initialize speech recognition
   useEffect(() => {
     if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
