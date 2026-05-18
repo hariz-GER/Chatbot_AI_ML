@@ -47,6 +47,7 @@ import axios from 'axios';
 
 const { Text } = Typography;
 const { TextArea } = Input;
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 interface Attachment {
   id: string;
@@ -140,12 +141,12 @@ export default function Home() {
     const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
 
     // Start session when user loads the page
-    axios.post('http://localhost:4000/api/admin/session/start', {}, { headers })
+    axios.post(`${API_URL}/api/admin/session/start`, {}, { headers })
       .catch(() => { }); // Ignore errors silently
 
     // Send heartbeat every 30 seconds to update session duration
     const heartbeatInterval = setInterval(() => {
-      axios.post('http://localhost:4000/api/admin/session/heartbeat', {}, { headers })
+      axios.post(`${API_URL}/api/admin/session/heartbeat`, {}, { headers })
         .catch(() => { });
     }, 30000);
 
@@ -153,7 +154,7 @@ export default function Home() {
     const handleBeforeUnload = () => {
       // Use sendBeacon for reliable delivery on page unload
       const blob = new Blob([JSON.stringify({})], { type: 'application/json' });
-      navigator.sendBeacon?.('http://localhost:4000/api/admin/session/end', blob);
+      navigator.sendBeacon?.(`${API_URL}/api/admin/session/end`, blob);
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -162,7 +163,7 @@ export default function Home() {
       clearInterval(heartbeatInterval);
       window.removeEventListener('beforeunload', handleBeforeUnload);
       // End session when component unmounts
-      axios.post('http://localhost:4000/api/admin/session/end', {}, { headers }).catch(() => { });
+      axios.post(`${API_URL}/api/admin/session/end`, {}, { headers }).catch(() => { });
     };
   }, [user]);
 
@@ -225,7 +226,7 @@ export default function Home() {
 
     try {
       // Use streaming endpoint
-      const response = await fetch('http://localhost:4000/api/chat/stream', {
+      const response = await fetch(`${API_URL}/api/chat/stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -451,7 +452,7 @@ export default function Home() {
 
       setLoading(true);
       try {
-        const response = await axios.post('http://localhost:4000/api/chat', {
+        const response = await axios.post(`${API_URL}/api/chat`, {
           message: lastUserMessage.content,
           previousMessages: messages.slice(0, -2).map(m => ({ role: m.role, content: m.content }))
         });
@@ -492,7 +493,7 @@ export default function Home() {
     setImageLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:4000/api/image/generate', {
+      const response = await axios.post(`${API_URL}/api/image/generate`, {
         prompt: imagePrompt
       });
 

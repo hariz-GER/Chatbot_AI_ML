@@ -13,6 +13,8 @@ import {
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
 export default function AuthPage() {
     const [isLogin, setIsLogin] = useState(true);
     const [loading, setLoading] = useState(false);
@@ -27,7 +29,7 @@ export default function AuthPage() {
         const token = localStorage.getItem('authToken');
         if (token) {
             // Verify token
-            axios.get('http://localhost:4000/api/auth/verify', {
+            axios.get(`${API_URL}/api/auth/verify`, {
                 headers: { Authorization: `Bearer ${token}` }
             }).then(() => {
                 router.push('/');
@@ -54,7 +56,7 @@ export default function AuthPage() {
                 ? { email, password }
                 : { email, password, name };
 
-            const response = await axios.post(`http://localhost:4000${endpoint}`, payload);
+            const response = await axios.post(`${API_URL}${endpoint}`, payload);
 
             // Save token and user data
             localStorage.setItem('authToken', response.data.token);

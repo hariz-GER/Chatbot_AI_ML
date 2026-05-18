@@ -21,6 +21,8 @@ import {
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
 interface User {
     id: number;
     email: string;
@@ -75,7 +77,7 @@ export default function AdminDashboard() {
             }
 
             try {
-                const response = await axios.get('http://localhost:4000/api/admin/check', {
+                const response = await axios.get(`${API_URL}/api/admin/check`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setIsAdmin(response.data.isAdmin);
@@ -96,9 +98,9 @@ export default function AdminDashboard() {
         try {
             const headers = { Authorization: `Bearer ${token}` };
             const [usersRes, statsRes, analyticsRes] = await Promise.all([
-                axios.get('http://localhost:4000/api/admin/users', { headers }),
-                axios.get('http://localhost:4000/api/admin/stats', { headers }),
-                axios.get('http://localhost:4000/api/admin/analytics', { headers })
+                axios.get(`${API_URL}/api/admin/users`, { headers }),
+                axios.get(`${API_URL}/api/admin/stats`, { headers }),
+                axios.get(`${API_URL}/api/admin/analytics`, { headers })
             ]);
             setUsers(usersRes.data.users);
             setStats(statsRes.data.stats);
@@ -124,7 +126,7 @@ export default function AdminDashboard() {
     const handleExport = () => {
         const token = localStorage.getItem('authToken');
         // For CSV export, we need to add token to URL or use a different approach
-        window.open(`http://localhost:4000/api/admin/users/export?token=${token}`, '_blank');
+        window.open(`${API_URL}/api/admin/users/export?token=${token}`, '_blank');
         message.success('Downloading users CSV...');
     };
 
@@ -135,7 +137,7 @@ export default function AdminDashboard() {
 
         setActionLoading(true);
         try {
-            await axios.delete(`http://localhost:4000/api/admin/users/${userId}`, {
+            await axios.delete(`${API_URL}/api/admin/users/${userId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             message.success(`User "${userName}" deleted successfully`);
@@ -162,7 +164,7 @@ export default function AdminDashboard() {
         setActionLoading(true);
         try {
             await axios.post(
-                `http://localhost:4000/api/admin/users/${selectedUser.id}/reset-password`,
+                `${API_URL}/api/admin/users/${selectedUser.id}/reset-password`,
                 { newPassword },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
