@@ -4,6 +4,8 @@ import "./globals.css";
 
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 
+const basePath = process.env.GITHUB_PAGES === 'true' ? '/Chatbot_AI_ML' : '';
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -20,7 +22,7 @@ export const metadata: Metadata = {
   keywords: ["AI", "chatbot", "assistant", "Gemini", "smart assistant"],
   authors: [{ name: "Hariz" }],
   creator: "Hariz",
-  manifest: "/manifest.json",
+  manifest: `${basePath}/manifest.json`,
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -49,7 +51,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link rel="apple-touch-icon" href={`${basePath}/icon-192.png`} />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>

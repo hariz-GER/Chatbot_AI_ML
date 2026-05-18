@@ -33,11 +33,16 @@ if (isProduction) {
 }
 
 // CORS configuration
+const configuredFrontendUrls = process.env.FRONTEND_URL
+    ? process.env.FRONTEND_URL.split(',').map(url => url.trim()).filter(Boolean)
+    : [];
+
 const allowedOrigins = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
     'http://localhost:3001',
-    process.env.FRONTEND_URL
+    'https://hariz-ger.github.io',
+    ...configuredFrontendUrls
 ].filter(Boolean);
 
 app.use(cors({
